@@ -1,0 +1,40 @@
+a {
+  color: black;
+  text-decoration: None;
+}
+
+table {  
+  color: #333;
+  font-family: Helvetica, Arial, sans-serif;
+  border-collapse: collapse; 
+  border-spacing: 0; 
+}
+
+thead tr th {
+  background: #FAFAFA;
+  text-align: center;
+}
+
+th {
+  text-align: left;
+}
+
+td, th {  
+    border: 1px solid #DADADA;
+    height: 40px; 
+    transition: all 0.5s; 
+    padding-right: 15px;
+    padding-left: 30px;
+}
+
+th {  
+    font-weight: bold;
+}
+
+td {  
+    background: #FAFAFA;
+}
+
+td.number {
+  text-align: right;
+}

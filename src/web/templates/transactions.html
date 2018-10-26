@@ -1,0 +1,29 @@
+{% extends 'template.html' %}
+{% block content %}
+<a href="transactions?month=&category={{ category  }}&title={{ title }}">All transactions of this category</a> 
+<br/><br/>
+<table>
+    <thead>
+        <tr>
+            <th>DATE</th>
+            <th>DESCRIPTION</th>
+            <th>ON</th>
+            <th>CATEGORY</th>
+            <th>TITLE</th>
+            <th>AMOUNT</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in transactions %}
+        <tr>
+            <td>{{ row.date }}</td>
+            <td>{{ row.description }}</td>
+            <td>{{ row.realdate }}</td>
+            <td>{{ row.category }}</td>
+            <td>{{ row.title }}</td>
+            <td class="number">{{ "{:.2f}".format(row.amount) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

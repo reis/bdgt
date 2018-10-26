@@ -1,0 +1,41 @@
+{% extends 'template.html' %}
+{% block content %}
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2"></th>
+                    {% for monthd in months %}
+                        <th>
+                            <a href="budget?month={{ monthd }}">
+                            {{ monthd }}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in data %}
+                    {% for title in data[category] %}
+                        <tr>
+                            <th>{{ category }}</th>
+                            <th>{{ title if title }}</th>
+                            {% for monthd in data[category][title] %}
+                                {% set budget = data[category][title][monthd]["budget3"] %}
+                                {% set amount = data[category][title][monthd]["amount3"] %}
+                                {% set pred = data[category][title][monthd]["pred3"] %}
+                                {% set bgcolor = "LightGray" if budget == 0 and amount == 0 else "YellowGreen" if amount > budget else "Salmon" if amount < budget else "LightBlue" %}
+                                {% if data[category][title][monthd]["ord"] == 2 and amount != 0 %}
+                                    {% set bgcolor = "Yellow" %}
+                                {% endif %}
+                                <td class="number" style="background: {{bgcolor}}">
+                                    <a href="transactions?month={{monthd}}&category={{category}}&title={{title if title }}">
+                                    {{ "{:.2f}".format(amount) }} {% if pred == 1 %}*{% endif %}
+                                    <br> <font size="-3">bdgt {{ "{:.2f}".format(budget) }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {{ sum }}
+{% endblock %}
