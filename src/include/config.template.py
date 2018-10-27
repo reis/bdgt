@@ -1,4 +1,5 @@
 #!/usr/bin/env python
-ROOT = "c://bdgt/"
-DB_FILE = "c:/bdgt/db/beta.db"
-IMPORT_PATH = "C:/MyDownloads/Statements*.*"
+ROOT = "/my_home/bdgt/"
+DB_FILE = "/my_home/bdgt_data/bdgt.db"
+IMPORT_PATH  = "/my_home/Downloads/Statements*.*"
+ARCHIVE_PATH = "/my_home/bdgt_data/archive/"

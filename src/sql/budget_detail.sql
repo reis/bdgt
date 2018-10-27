@@ -34,7 +34,7 @@ where (month is null or month = :month)
 and b.title is not null
 union
 -- SELECT BUDGETS THAT TITLE IS NULL
-select 1 as ord, b.category, b.title, :month as month,
+select case when b.category in ('CASH', 'TRANSFER') then 9 else 1 end as ord, b.category, b.title, :month as month,
 b.budget1, case when coalesce(s1.amount,0) = 0 and b.fixed then b.budget1 else coalesce(s1.amount,0) end as amount1,
 case when b.budget1 <> 0 and b.fixed and coalesce(s1.amount,0) = 0  then 1 else 0 end as pred1,
 b.budget2, case when coalesce(s2.amount,0) = 0 and b.fixed then b.budget2 else coalesce(s2.amount,0) end as amount2,
