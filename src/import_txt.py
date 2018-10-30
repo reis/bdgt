@@ -1,36 +1,39 @@
 import os
 import re
+from include import config
+from include import db
 import sqlite3
 import datetime
 import sys
 from pprint import pprint
+import glob
 
-
-conn = sqlite3.connect("db/beta.db")
+db = db.db()
+conn = db.conn
 c = conn.cursor()
 
-path = 'import/new/'
-for fn in os.listdir(path):
-  if os.path.isfile(os.path.join(path, fn)):
-    with open(os.path.join(path, fn), 'rb') as txtfile:
+path = config.IMPORT_PATH
+for file_name in glob.glob(path):
+  if os.path.isfile(os.path.join(path, file_name)):
+    with open(os.path.join(path, file_name), 'r', encoding="latin-1") as txtfile:
       header = [next(txtfile) for x in range(3)]
       for line in txtfile:
         row = [next(txtfile) for x in range(4)]
         record = {}
-        d = datetime.datetime.strptime(row[0].split(":\xa0")[1].strip(), '%d/%m/%Y')
+        d = datetime.datetime.strptime(row[0].split(':\xa0')[1].strip(), '%d/%m/%Y')
         record["date"] = datetime.date.strftime(d, "%Y-%m-%d")
-        record["description"] = row[1].split(":\xa0")[1].strip()
-        record["amount"] = row[2].split(":\xa0")[1].replace('\xa0', '').replace('GBP', '').strip()
-        record["balance"] = row[3].split(":\xa0")[1].replace('\xa0', '').replace('GBP', '').strip()
-        #print record
+        record["description"] = row[1].split(':\xa0')[1].strip()
+        record["amount"] = row[2].split(':\xa0')[1].replace('\xa0', '').replace('GBP', '').strip()
+        record["balance"] = row[3].split(':\xa0')[1].replace('\xa0', '').replace('GBP', '').strip()
+        print(list(record.values()))
         sql = "INSERT OR IGNORE INTO transactions (%s) VALUES (?, ?, ?, ?)" % (', '.join(record.keys()))
     
         try:
-          c.execute(sql, record.values())
+          c.execute(sql, list(record.values()))
           conn.commit()
         except sqlite3.Error as er:
           print ('er:', er.message)
-    os.rename(path + fn, "import/done/" + fn)
+    os.rename(os.path.join(path, file_name), config.ARCHIVE_PATH + datetime.date.strftime(d, "%Y-%m-%d") + ".txt")
 
 sql = """UPDATE transactions
 SET title = 
