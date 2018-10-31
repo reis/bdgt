@@ -89,8 +89,8 @@ config = {
     },
     '/css': {
         'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
-        'tools.staticdir.on' = True 
-        'tools.staticdir.dir' = "/dev/bdgt/src/web/static/css/" 
+        'tools.staticdir.on': True,
+        'tools.staticdir.dir': "/dev/bdgt/src/web/static/css/" 
     }
 }
 
