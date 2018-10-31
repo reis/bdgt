@@ -13,14 +13,20 @@ conn = db.conn
 c = conn.cursor()
 
 path = config.IMPORT_PATH
+print (path)
 for file_name in glob.glob(path):
+  print(file_name)
   if os.path.isfile(os.path.join(path, file_name)):
     with open(os.path.join(path, file_name), 'r', encoding="latin-1") as txtfile:
       header = [next(txtfile) for x in range(3)]
+      i = 0
       for line in txtfile:
+        i += 1
         row = [next(txtfile) for x in range(4)]
         record = {}
         d = datetime.datetime.strptime(row[0].split(':\xa0')[1].strip(), '%d/%m/%Y')
+        if (i == 1):
+          d0 = d
         record["date"] = datetime.date.strftime(d, "%Y-%m-%d")
         record["description"] = row[1].split(':\xa0')[1].strip()
         record["amount"] = row[2].split(':\xa0')[1].replace('\xa0', '').replace('GBP', '').strip()
@@ -33,7 +39,7 @@ for file_name in glob.glob(path):
           conn.commit()
         except sqlite3.Error as er:
           print ('er:', er.message)
-    os.rename(os.path.join(path, file_name), config.ARCHIVE_PATH + datetime.date.strftime(d, "%Y-%m-%d") + ".txt")
+    os.rename(os.path.join(path, file_name), config.ARCHIVE_PATH + datetime.date.strftime(d0, "%Y-%m-%d") + ".txt")
 
 sql = """UPDATE transactions
 SET title = 

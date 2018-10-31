@@ -2,4 +2,4 @@
 venv
 tmp
 *.pyc
-src/include/config.py
+include/config.py
