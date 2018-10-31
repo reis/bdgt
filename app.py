@@ -1,6 +1,6 @@
 import sys
-from include import config
-from include import db
+import config
+import db
 import cherrypy
 import json
 from jinja2 import Environment, FileSystemLoader
