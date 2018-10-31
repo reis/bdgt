@@ -2,7 +2,7 @@ import sys
 import sqlite3
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from include import config
+import config
 
 def dict_factory(cursor, row):
     d = {}
