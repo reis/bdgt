@@ -12,7 +12,7 @@ env = Environment(loader=FileSystemLoader(config.ROOT + 'src/web/templates'))
 cherrypy.config.update({'server.socket_port': 8081})
 
 
-class Web(object):
+class App(object):
 
     def __init__(self):
         self.db = db.db()
@@ -81,4 +81,17 @@ class Web(object):
         tmpl = env.get_template('budgets.html')
         return tmpl.render(ROOT = config.ROOT, data=budgets, month=month, links=links, months=list(budgets[category][title].keys()))
 
-cherrypy.quickstart(Web(), "/", config.ROOT + "src/web/web.conf")
+
+config = {
+    'global': {
+        'server.socket_host': '0.0.0.0',
+        'server.socket_port': int(os.environ.get('PORT', 5000)),
+    },
+    '/css': {
+        'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
+        'tools.staticdir.on' = True 
+        'tools.staticdir.dir' = "/dev/bdgt/src/web/static/css/" 
+    }
+}
+
+cherrypy.quickstart(App(), '/', config=config)
