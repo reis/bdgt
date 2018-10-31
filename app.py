@@ -11,7 +11,6 @@ env = Environment(loader=FileSystemLoader(config.ROOT + 'src/web/templates'))
 
 cherrypy.config.update({'server.socket_port': 8081})
 
-
 class App(object):
 
     def __init__(self):
