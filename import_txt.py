@@ -1,7 +1,7 @@
 import os
 import re
-from include import config
-from include import db
+import config
+import db
 import sqlite3
 import datetime
 import sys

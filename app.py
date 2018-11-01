@@ -1,6 +1,6 @@
 import sys
 import os
-import config
+import configparser
 import db
 import cherrypy
 import json
@@ -8,9 +8,10 @@ from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-env = Environment(loader=FileSystemLoader(config.ROOT + 'src/web/templates'))
+config = configparser.ConfigParser()
+config.read("config.ini")
 
-cherrypy.config.update({'server.socket_port': 8081})
+env = Environment(loader=FileSystemLoader(config.get("CONFIG", "ROOT") + 'web/templates'))
 
 class App(object):
 
@@ -30,10 +31,10 @@ class App(object):
 
     @cherrypy.expose
     def transaction(self, ):
-        transactions = self.db.get_transactions()
+        transactions = self.db.get_transactions(1)
 
         tmpl = env.get_template('transactions.html')
-        return tmpl.render(transactions=transactions, category=category)
+        return tmpl.render(transactions=transactions)
     
     @cherrypy.expose
     def budget(self, month=datetime.now().strftime("%Y-%m")):
@@ -42,7 +43,7 @@ class App(object):
                   (datetime.strptime(month, "%Y-%m") + relativedelta(months=+1)).strftime("%Y-%m")
         )
         tmpl = env.get_template('budget.html')
-        return tmpl.render(ROOT = config.ROOT, budget=budget, month=month, links=links)
+        return tmpl.render(ROOT = config.get("CONFIG", "ROOT"), budget=budget, month=month, links=links)
 
     @cherrypy.expose
     def budgets(self, month=(datetime.now()+relativedelta(months=1)).strftime("%Y-%m")):
@@ -79,10 +80,10 @@ class App(object):
 
         #print(json.dumps(budget_line, indent=2))
         tmpl = env.get_template('budgets.html')
-        return tmpl.render(ROOT = config.ROOT, data=budgets, month=month, links=links, months=list(budgets[category][title].keys()))
+        return tmpl.render(ROOT=config.get("CONFIG", "ROOT"), data=budgets, month=month, links=links, months=list(budgets[category][title].keys()))
 
 
-config = {
+cherrypy_config = {
     'global': {
         'server.socket_host': '0.0.0.0',
         'server.socket_port': int(os.environ.get('PORT', 5000)),
@@ -90,8 +91,8 @@ config = {
     '/css': {
         'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
         'tools.staticdir.on': True,
-        'tools.staticdir.dir': "/dev/bdgt/src/web/static/css/" 
+        'tools.staticdir.dir': config.get("CONFIG", "ROOT") + "web/static/css/" 
     }
 }
 
-cherrypy.quickstart(App(), '/', config=config)
+cherrypy.quickstart(App(), '/', config=cherrypy_config)

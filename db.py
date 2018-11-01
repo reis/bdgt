@@ -2,7 +2,10 @@ import sys
 import sqlite3
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import config
+import configparser
+
+config = configparser.ConfigParser()
+config.read("config.ini")
 
 def dict_factory(cursor, row):
     d = {}
@@ -13,11 +16,11 @@ def dict_factory(cursor, row):
 class db(object):
 
     def __init__(self):
-        self.conn = sqlite3.connect(config.DB_FILE, check_same_thread=False)
+        self.conn = sqlite3.connect(config.get("CONFIG", "DB_FILE"), check_same_thread=False)
 
     def get_query(self, filename):
         # Open and read the file
-        fd = open(config.ROOT + 'src/sql/' + filename, 'r')
+        fd = open(config.get("CONFIG", "ROOT") + 'sql/' + filename, 'r')
         sqlFile = fd.read()
         fd.close()
         return sqlFile
