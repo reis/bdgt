@@ -1,3 +1,4 @@
+import os
 import records
 from datetime import datetime
 import configparser
@@ -14,14 +15,7 @@ def dict_factory(cursor, row):
 class Db(object):
 
     def __init__(self):
-        #self.conn = sqlite3.connect(config.get("CONFIG", "DB_FILE"), check_same_thread=False)
-        dsn = "postgresql://{user}:{password}@{host}/{dbname}".format(
-            host=config.get("DATABASE", "HOST"),
-            dbname=config.get("DATABASE", "DATABASE"),
-            user=config.get("DATABASE", "USER"),
-            password=config.get("DATABASE", "PASSWORD"),
-        )
-        self.conn = records.Database(dsn)
+        self.conn = records.Database(os.environ['DATABASE_URL'])
 
     def get_transactions(self, month, category=None, title=None):
         sql = """
