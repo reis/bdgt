@@ -1,51 +1,51 @@
-BEGIN TRANSACTION;
-DROP TABLE IF EXISTS `transactions`;
-CREATE TABLE IF NOT EXISTS `transactions` (
-	`date`	TEXT NOT NULL,
-	`description`	TEXT NOT NULL,
-	`amount`	NUMERIC NOT NULL,
-	`balance`	NUMERIC NOT NULL,
-	`type`	TEXT DEFAULT 1,
-	`category`	TEXT,
-	`title`	TEXT,
-	`fixed`	INTEGER
+-- Drop table
+
+-- DROP TABLE public.budget
+
+CREATE TABLE public.budget (
+	category varchar NULL,
+	title varchar NULL,
+	"month" varchar NULL,
+	budget1 numeric(10,2) NULL,
+	budget2 numeric(10,2) NULL,
+	budget3 numeric(10,2) NULL,
+	fixed bool NULL,
+	ignore_title bool NULL
+)
+WITH (
+	OIDS=TRUE
 );
-DROP TABLE IF EXISTS `patterns`;
-CREATE TABLE IF NOT EXISTS `patterns` (
-	`pattern`	TEXT ( 2000000000 ) NOT NULL,
-	`category`	TEXT ( 2000000000 ) NOT NULL,
-	`title`	text,
-	`maxamount`	NUMERIC ( 2000000000 , 10 ),
-	`fixed`	INTEGER NOT NULL DEFAULT 0
+
+-- Drop table
+
+-- DROP TABLE public.patterns
+
+CREATE TABLE public.patterns (
+	pattern varchar NOT NULL,
+	category varchar NOT NULL,
+	title varchar NULL,
+	maxamount numeric(10,2) NULL,
+	fixed bool NOT NULL
+)
+WITH (
+	OIDS=TRUE
 );
-DROP TABLE IF EXISTS `month_budget`;
-CREATE TABLE IF NOT EXISTS `month_budget` (
-	`category`	TEXT,
-	`title`	TEXT,
-	`month`	TEXT,
-	`budget1`	NUMERIC,
-	`budget2`	NUMERIC,
-	`budget3`	NUMERIC,
-	`fixed`	INTEGER,
-	PRIMARY KEY(`category`,`title`,`month`)
+
+-- Drop table
+
+-- DROP TABLE public.transactions
+
+CREATE TABLE public.transactions (
+	"date" date NOT NULL,
+	description varchar NOT NULL,
+	amount numeric(10,2) NOT NULL,
+	balance numeric(10,2) NOT NULL,
+	"type" varchar NULL,
+	category varchar NULL,
+	title varchar NULL,
+	fixed bool NULL,
+	CONSTRAINT transactions_pk PRIMARY KEY (date, description, amount, balance)
+)
+WITH (
+	OIDS=TRUE
 );
-DROP TABLE IF EXISTS `budget`;
-CREATE TABLE IF NOT EXISTS `budget` (
-	`category`	TEXT,
-	`title`	TEXT,
-	`budget1`	NUMERIC,
-	`budget2`	NUMERIC,
-	`budget3`	NUMERIC,
-	PRIMARY KEY(`category`,`title`)
-);
-DROP INDEX IF EXISTS `transactions_date_IX`;
-CREATE INDEX IF NOT EXISTS `transactions_date_IX` ON `transactions` (
-	`date`	DESC
-);
-DROP INDEX IF EXISTS `transactions_UQ`;
-CREATE UNIQUE INDEX IF NOT EXISTS `transactions_UQ` ON `transactions` (
-	`date`	DESC,
-	`amount`,
-	`balance`
-);
-COMMIT;
