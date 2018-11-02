@@ -10,14 +10,10 @@ from dateutil.relativedelta import relativedelta
 
 config = configparser.ConfigParser()
 config.read("config.ini")
-
 env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__)) + '/web/templates'))
 
-USERS = {os.environ['USR']: os.environ['PWD']}
-print(USERS)
-
 def validate_password(realm, username, password):
-    if username in USERS and USERS[username] == password:
+    if username == os.environ['USR'] and password == os.environ['PWD']:
        return True
     return False
 
