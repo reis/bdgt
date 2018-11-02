@@ -1,7 +1,5 @@
-import sys
-import sqlite3
+import records
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import configparser
 
 config = configparser.ConfigParser()
@@ -13,65 +11,49 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
-class db(object):
+class Db(object):
 
     def __init__(self):
-        self.conn = sqlite3.connect(config.get("CONFIG", "DB_FILE"), check_same_thread=False)
-
-    def get_query(self, filename):
-        # Open and read the file
-        fd = open(config.get("CONFIG", "ROOT") + 'sql/' + filename, 'r')
-        sqlFile = fd.read()
-        fd.close()
-        return sqlFile
+        #self.conn = sqlite3.connect(config.get("CONFIG", "DB_FILE"), check_same_thread=False)
+        dsn = "postgresql://{user}:{password}@{host}/{dbname}".format(
+            host=config.get("DATABASE", "HOST"),
+            dbname=config.get("DATABASE", "DATABASE"),
+            user=config.get("DATABASE", "USER"),
+            password=config.get("DATABASE", "PASSWORD"),
+        )
+        self.conn = records.Database(dsn)
 
     def get_transactions(self, month, category=None, title=None):
-        self.conn.row_factory = dict_factory
-
         sql = """
             SELECT DATE, DESCRIPTION, CATEGORY, TITLE, AMOUNT 
             FROM transactions
-            WHERE date LIKE ?
+            WHERE CAST(date as varchar) LIKE :month
             {}
             {}
             ORDER BY 1 DESC""".format(
-                "AND title = ?"    if title else "", 
-                "AND category IS NULL" if category == "None" else "AND category = ?" if category else "")
-        cur = self.conn.cursor()
-        para = [month+"%"]
+                "AND title = :title"    if title else "", 
+                "AND category IS NULL" if category == "None" else "AND category = :category" if category else "")
+        
+        params = {"month": month+"%"}
         if title:
-            para.append(title)
+            params["title"] = title
         if category and category != "None":
-            para.append(category)
-        cur.execute(sql, para)
+            params["category"] = category
+        
+        rows = self.conn.query(sql, **params).as_dict()
 
-        rows = list()
-        while True:
-            row = cur.fetchone()
-            if not row:
-                break
+        for row in rows:
             if " ON " in row["description"]:
                 row["description"], row["realdate"] = row["description"].split(" ON ")
-            row["description"] = row["description"].split(",")[0]
-            row["description"] = row["description"].split("*")[-1]
-            rows.append(row)
+                row["description"] = row["description"].split(",")[0]
+                row["description"] = row["description"].split("*")[-1]
 
         return rows
 
     def get_budget_detail(self, month=datetime.now().strftime("%Y-%m")):
-        self.conn.row_factory = dict_factory
-        c = self.conn.cursor()
-        sql = self.get_query("budget_detail.sql")
-        rows = list()
-        c.execute(sql, {"month": month})
-        rows = c.fetchall()
+        rows = self.conn.query_file('sql/budget_detail.sql', month=month)
         return rows
 
     def get_budget_extra(self, month=0):
-        self.conn.row_factory = dict_factory
-        c = self.conn.cursor()
-        sql = self.get_query("budget_extra.sql")
-        rows = list()
-        c.execute(sql, {"month": month})
-        rows = c.fetchall()
+        rows = self.conn.query_file('sql/budget_extra.sql', month=month)
         return rows

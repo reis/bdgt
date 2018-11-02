@@ -1,9 +1,9 @@
-import sys
 import os
 import configparser
-import db
+from db import Db
 import cherrypy
-import json
+from cherrypy.lib import auth_basic
+from decimal import Decimal
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -11,12 +11,19 @@ from dateutil.relativedelta import relativedelta
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-env = Environment(loader=FileSystemLoader(config.get("CONFIG", "ROOT") + 'web/templates'))
+env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__)) + '/web/templates'))
+
+USERS = {'reis': '123123'}
+
+def validate_password(realm, username, password):
+    if username in USERS and USERS[username] == password:
+       return True
+    return False
 
 class App(object):
 
     def __init__(self):
-        self.db = db.db()
+        self.db = Db()
 
     @cherrypy.expose
     def index(self):
@@ -43,7 +50,7 @@ class App(object):
                   (datetime.strptime(month, "%Y-%m") + relativedelta(months=+1)).strftime("%Y-%m")
         )
         tmpl = env.get_template('budget.html')
-        return tmpl.render(ROOT = config.get("CONFIG", "ROOT"), budget=budget, month=month, links=links)
+        return tmpl.render(budget=budget, month=month, links=links)
 
     @cherrypy.expose
     def budgets(self, month=(datetime.now()+relativedelta(months=1)).strftime("%Y-%m")):
@@ -55,7 +62,7 @@ class App(object):
         for x in range(0, -8, -1):
             xmonth = (datetime.strptime(month, "%Y-%m") + relativedelta(months=x)).strftime("%Y-%m")
             xbudget = self.db.get_budget_detail(xmonth)
-            xtotal[xmonth] = { "amount3": 0.0, "budget3": 0.0 }
+            xtotal[xmonth] = { "amount3": Decimal(0.00), "budget3": Decimal(0.00) }
             for budget_line in xbudget:
                 if budget_line["category"] not in budgets: 
                     budgets[ budget_line["category"] ] = { budget_line["title"]: { xmonth: budget_line } }
@@ -78,9 +85,8 @@ class App(object):
                     mysort[key] = budgets[category][title][key]
                 budgets[category][title] = mysort
 
-        #print(json.dumps(budget_line, indent=2))
         tmpl = env.get_template('budgets.html')
-        return tmpl.render(ROOT=config.get("CONFIG", "ROOT"), data=budgets, month=month, links=links, months=list(budgets[category][title].keys()))
+        return tmpl.render(data=budgets, month=month, links=links, months=list(budgets[category][title].keys()))
 
 
 cherrypy_config = {
@@ -91,7 +97,13 @@ cherrypy_config = {
     '/css': {
         'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
         'tools.staticdir.on': True,
-        'tools.staticdir.dir': config.get("CONFIG", "ROOT") + "web/static/css/" 
+        'tools.staticdir.dir': "web/static/css/" 
+    },
+     '/': {
+       'tools.auth_basic.on': True,
+       'tools.auth_basic.realm': 'localhost',
+       'tools.auth_basic.checkpassword': validate_password,
+       'tools.auth_basic.accept_charset': 'UTF-8',
     }
 }
 

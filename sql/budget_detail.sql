@@ -10,23 +10,23 @@ from budget b
 left join (
     select category, title, sum(amount) as amount
     from transactions 
-    where date like :month || '%'
-    and cast(strftime('%d', date) as integer) <= 10
+    where cast(date as varchar) like :month || '%'
+    and cast(date_part('day', date) as integer) <= 10
     and title is not null
     group by category, title
 ) s1 on b.category = s1.category and b.title = s1.title
 left join (
     select category, title, sum(amount) as amount
     from transactions 
-    where date like :month || '%'
-    and cast(strftime('%d', date) as integer) <= 20
+    where cast(date as varchar) like :month || '%'
+    and cast(date_part('day', date) as integer) <= 20
     and title is not null
     group by category, title
 ) s2 on b.category = s2.category and b.title = s2.title
 left join (
     select category, title, sum(amount) as amount
     from transactions 
-    where date like :month || '%'
+    where cast(date as varchar) like :month || '%'
     and title is not null
     group by category, title
 ) s3 on b.category = s3.category and b.title = s3.title
@@ -46,21 +46,21 @@ from budget b
 left join (
     select category, sum(amount) as amount
     from transactions 
-    where date like :month || '%'
-    and cast(strftime('%d', date) as integer) <= 10
+    where cast(date as varchar) like :month || '%'
+    and cast(date_part('day', date) as integer) <= 10
     group by category
 ) s1 on b.category = s1.category
 left join (
     select category, sum(amount) as amount
     from transactions 
-    where date like :month || '%'
-    and cast(strftime('%d', date) as integer) <= 20
+    where cast(date as varchar) like :month || '%'
+    and cast(date_part('day', date) as integer) <= 20
     group by category
 ) s2 on b.category = s2.category
 left join (
     select category, sum(amount) as amount
     from transactions 
-    where date like :month || '%'
+    where cast(date as varchar) like :month || '%'
     group by category
 ) s3 on b.category = s3.category
 where (month is null or month = :month)
@@ -68,14 +68,14 @@ and b.title is null
 union
 -- SELECT TRANSACTIONS WITHOUT BUDGET
 select 2 as ord, category, title, :month as month, 
-0 as budget1, sum(case when cast(strftime('%d', date) as integer) <= 10 then amount when date is null then 0 else 0 end) as amount1, 0 as pred1,
-0 as budget2, sum(case when cast(strftime('%d', date) as integer) <= 20 then amount when date is null then 0 else 0 end) as amount2, 0 as pred2,
+0 as budget1, sum(case when cast(date_part('day', date) as integer) <= 10 then amount when date is null then 0 else 0 end) as amount1, 0 as pred1,
+0 as budget2, sum(case when cast(date_part('day', date) as integer) <= 20 then amount when date is null then 0 else 0 end) as amount2, 0 as pred2,
 0 as budget3, sum(amount) as amount3, 0 as pred3,
 0 as budget_abs
 from (
     -- SELECT ALL TRANSACTIONS OF THE MONTH
     select * from transactions 
-    where date like :month || '%'
+    where cast(date as varchar) like :month || '%'
     except
     -- SELECT ALL TRANSACTIONS WITH BUDGET
     select * from (
@@ -83,7 +83,7 @@ from (
         select t.* from budget b
         left join transactions t 
         on b.category = t.category and b.title = t.title
-        and date like :month || '%'
+        and cast(date as varchar) like :month || '%'
         and b.title is not null
         where (month is null or month = :month)
         union
@@ -91,7 +91,7 @@ from (
         select t.* from budget b
         left join transactions t 
         on b.category = t.category
-        and date like :month || '%'
+        and cast(date as varchar) like :month || '%'
         and b.title is null
         where (month is null or month = :month)
     ) a
