@@ -13,7 +13,7 @@ config.read("config.ini")
 env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__)) + '/web/templates'))
 
 def validate_password(realm, username, password):
-    if username == os.environ['USR'] and password == os.environ['PWD']:
+    if username == os.environ['AUTH_USER'] and password == os.environ['AUTH_PASS']:
        return True
     return False
 
