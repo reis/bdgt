@@ -1,5 +1,5 @@
 # BDGT - My budget and bank manager
 
-During my life I've tried many different apps to manage my money but there was always something that I did not like.
+After trying many different apps to manage my money I decided to build my own aproach of budget and categorizing based on my bank statements.
 
-After some time I decided to create a new one just for me. It is still very simple but the plan is keep improving it.
+This app is still very simple but avery month I try to improve something.
