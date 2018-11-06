@@ -3,4 +3,4 @@
 venv
 tmp
 *.pyc
-include/config.py
+config.ini
