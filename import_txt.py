@@ -37,10 +37,9 @@ for file_name in glob.glob(path):
         record["balance"] = row[3].split(':\xa0')[1].replace('\xa0', '').replace('GBP', '').strip()
         
         print(list(record.values()))
-        
         sql = """INSERT INTO transactions (date, description, amount, balance) 
-        VALUES (:date, :description, :amount, :balance) 
-        ON CONFLICT DO NOTHING"""
+          VALUES (:date, :description, :amount, :balance)
+          ON CONFLICT DO NOTHING"""
         db.conn.query(sql, **record)
     
     os.rename(os.path.join(path, file_name), config.get("CONFIG", "ARCHIVE_PATH") + datetime.date.strftime(d0, "%Y-%m-%d") + ".txt")
