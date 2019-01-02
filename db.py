@@ -35,12 +35,18 @@ class Db(object):
             params["category"] = category
         
         rows = self.conn.query(sql, **params).as_dict()
-
+        total = 0
         for row in rows:
+            total += row["amount"]
             if " ON " in row["description"]:
                 row["description"], row["realdate"] = row["description"].split(" ON ")
                 row["description"] = row["description"].split(",")[0]
                 row["description"] = row["description"].split("*")[-1]
+        row_total = {
+            "description": "TOTAL",
+            "amount": total
+        }
+        rows.append(row_total)
 
         return rows
 
