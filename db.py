@@ -52,7 +52,58 @@ class Db(object):
 
     def get_budget_detail(self, month=datetime.now().strftime("%Y-%m")):
         rows = self.conn.query_file('sql/budget_detail.sql', month=month)
-        return rows
+
+        total1, total2, total3, budget1, budget2, budget3 = 0, 0, 0, 0, 0, 0
+        previtem = []
+        i=1
+
+        result = dict()
+        for row in rows:
+            if previtem and previtem["ord"] != row["ord"]:
+                result[("TOTAL {}".format(previtem['ord']),previtem['ord'])] = {
+                    'category': "TOTAL {}".format(previtem['ord']),
+                    'title': None,
+                    'ord': i,
+                    'amount1': total1,
+                    'amount2': total2,
+                    'amount3': total3,
+                    'budget1': budget1,
+                    'budget2': budget2,
+                    'budget3': budget3
+                }
+                total1, total2, total3, budget1, budget2, budget3 = 0, 0, 0, 0, 0, 0
+            result[(row['category'],row['title'])] = {
+                'category': row['category'],
+                'title': row['title'],
+                'ord': row['ord'],
+                'amount1': row['amount1'],
+                'amount2': row['amount2'],
+                'amount3': row['amount3'],
+                'budget1': row['budget1'],
+                'budget2': row['budget2'],
+                'budget3': row['budget3']
+            }
+            total1 = total1 + row['amount1']
+            total2 = total2 + row['amount2']
+            total3 = total3 + row['amount3']
+            budget1 = budget1 + row['budget1']
+            budget2 = budget2 + row['budget2']
+            budget3 = budget3 + row['budget3']
+            i+=1
+            previtem = row
+        
+        result[("TOTAL {}".format(previtem['ord']),previtem['ord'])] = {
+            'category': "TOTAL {}".format(previtem['ord']),
+            'title': None,
+            'ord': previtem['ord'],
+            'amount1': total1,
+            'amount2': total2,
+            'amount3': total3,
+            'budget1': budget1,
+            'budget2': budget2,
+            'budget3': budget3
+        }
+        return result
 
     def get_budget_extra(self, month=0):
         rows = self.conn.query_file('sql/budget_extra.sql', month=month)

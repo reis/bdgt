@@ -1,4 +1,4 @@
-select 1 as ord, b.category, b.title, b.month,
+select 1 as ord, b.category, b.title, :month as month,
 b.budget1, case when coalesce(s1.amount,0) = 0 and b.fixed then b.budget1 else coalesce(s1.amount,0) end as amount1, 
            case when coalesce(s1.amount,0) = 0 and b.fixed and b.budget1 <> 0 then 1 else 0 end as pred1,
 b.budget2, case when coalesce(s2.amount,0) = 0 and b.fixed then b.budget2 else coalesce(s2.amount,0) end as amount2, 
@@ -74,11 +74,11 @@ select 2 as ord, category, title, :month as month,
 0 as budget_abs
 from (
     -- SELECT ALL TRANSACTIONS OF THE MONTH
-    select * from transactions 
+    select date, description, amount, balance, type, category, title, fixed from transactions 
     where cast(date as varchar) like :month || '%'
     except
     -- SELECT ALL TRANSACTIONS WITH BUDGET
-    select * from (
+    select date, description, amount, balance, type, category, title, fixed from (
         -- SELECT BUDGETS THAT TITLE IS NOT NULL
         select t.* from budget b
         left join transactions t 

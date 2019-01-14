@@ -7,6 +7,7 @@ from decimal import Decimal
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from pprint import pprint
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -47,7 +48,7 @@ class App(object):
                   (datetime.strptime(month, "%Y-%m") + relativedelta(months=+1)).strftime("%Y-%m")
         )
         tmpl = env.get_template('budget.html')
-        return tmpl.render(budget=budget, month=month, links=links)
+        return tmpl.render(budget=budget.values(), month=month, links=links)
 
     @cherrypy.expose
     def budgets(self, month=(datetime.now()+relativedelta(months=1)).strftime("%Y-%m")):
@@ -55,25 +56,21 @@ class App(object):
                   (datetime.strptime(month, "%Y-%m") + relativedelta(months=+1)).strftime("%Y-%m")
         )
         budgets = dict()
-        xtotal = dict()
-        for x in range(0, -8, -1):
+        for x in range(-8, 1, 1):
             xmonth = (datetime.strptime(month, "%Y-%m") + relativedelta(months=x)).strftime("%Y-%m")
             xbudget = self.db.get_budget_detail(xmonth)
-            xtotal[xmonth] = { "amount3": Decimal(0.00), "budget3": Decimal(0.00) }
-            for budget_line in xbudget:
+            for x in xbudget:
+                budget_line = xbudget[x]
                 if budget_line["category"] not in budgets: 
                     budgets[ budget_line["category"] ] = { budget_line["title"]: { xmonth: budget_line } }
                 elif budget_line["title"] not in budgets[ budget_line["category"] ]:
                     budgets[ budget_line["category"] ] [ budget_line["title"] ] = { xmonth: budget_line }
                 elif xmonth not in budgets[ budget_line["category"] ] [ budget_line["title"] ]:
                     budgets[ budget_line["category"] ] [ budget_line["title"] ] [ xmonth ] = budget_line
-                xtotal[xmonth]["amount3"] += budget_line["amount3"]
-                xtotal[xmonth]["budget3"] += budget_line["budget3"]
-        budgets["TOTAL"] = { None: xtotal }
         
         for category in budgets:
             for title in budgets[category]:
-                for x in range(0, -8, -1):
+                for x in range(-8, 1, 1):
                     xmonth = (datetime.strptime(month, "%Y-%m") + relativedelta(months=x)).strftime("%Y-%m")
                     if xmonth not in budgets[category][title]:
                         budgets[category][title][xmonth] = {"budget3": 0, "amount3": 0, "ord": 2}

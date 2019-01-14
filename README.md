@@ -1,6 +1,6 @@
 # BDGT - My budget and bank manager
 
-After trying many different apps to manage my money I decided to build my own aproach of budget and categorizing based on my bank statements.
+Import transactdons from your bank to a database and provide a dashboard to manage budgets and expenses.
 
 ## Install
 

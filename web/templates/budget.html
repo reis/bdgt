@@ -15,29 +15,8 @@
                 </tr>
             </thead>
             <tbody>
-                {% set ns = namespace(total1 = 0, total2 = 0, total3 = 0, budget1 = 0, budget2 = 0, budget3 = 0) %}
                 {% for row in budget %}
-                    {% if loop.previtem and loop.previtem["ord"] != row["ord"] %}
-                    <tr>
-                        {% set c1 = "Green" if ns.total1 > ns.budget1 else "Red" %}
-                        {% set c2 = "Green" if ns.total2 > ns.budget2 else "Red" %}
-                        {% set c3 = "Green" if ns.total3 > ns.budget3 else "Red" %}
-                        <th colspan="2">TOTAL</th>
-                        <td class="number" style="color: white; background: {{ c1 }}">
-                            <b>{{ "{:.2f}".format(ns.total1) }} <br> <font size="-2"> of {{ "{:.2f}".format(ns.budget2) }}</font></b></td>
-                        <td class="number" style="color: white; background: {{ c2 }}">
-                            <b>{{ "{:.2f}".format(ns.total2) }} <br> <font size="-2"> of {{ "{:.2f}".format(ns.budget2) }}</font></b></td>
-                        <td class="number" style="color: white; background: {{ c3 }}">
-                            <b>{{ "{:.2f}".format(ns.total3) }} <br> <font size="-2"> of {{ "{:.2f}".format(ns.budget1) }}</font></b></td>
-                    </tr>
-                    {% endif %}
                 <tr>
-                    {% set ns.total1 = ns.total1 + row['amount1'] %}
-                    {% set ns.total2 = ns.total2 + row['amount2'] %}
-                    {% set ns.total3 = ns.total3 + row['amount3'] %}
-                    {% set ns.budget1 = ns.budget1 + row['budget1'] %}
-                    {% set ns.budget2 = ns.budget2 + row['budget2'] %}
-                    {% set ns.budget3 = ns.budget3 + row['budget3'] %}
                     {% set c1 = "LightGray" if row['budget1'] == 0 and row['amount1'] == 0 else "YellowGreen" if row['amount1'] > row['budget1'] else "Salmon" if row['amount1'] < row['budget1'] else "LightBlue" %}
                     {% set c2 = "LightGray" if row['budget2'] == 0 and row['amount2'] == 0 else "YellowGreen" if row['amount2'] > row['budget2'] else "Salmon" if row['amount2'] < row['budget2'] else "LightBlue" %}
                     {% set c3 = "LightGray" if row['budget3'] == 0 and row['amount3'] == 0 else "YellowGreen" if row['amount3'] > row['budget3'] else "Salmon" if row['amount3'] < row['budget3'] else "LightBlue" %}
@@ -51,7 +30,7 @@
                         {{ row['category'] }}</th>
                     <th style="border-right: 5px solid #DADADA;">
                             <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
-                            {{ row['title'] }}</th>
+                            {{ row['title'] if row['title'] }}</th>
                     <td class="number" style="background: {{c1}}">
                         <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
                         {{ "{:.2f}".format(row['amount1']) }} {% if row["pred1"] == 1 %}*{% endif %} <br> <font size="-2"> of {{ "{:.2f}".format(row['budget1']) }}</font>
@@ -66,18 +45,7 @@
 
             
                 {% endfor %}
-                <tr>
-                    {% set c1 = "Green" if ns.total1 > ns.budget1 else "Red" %}
-                    {% set c2 = "Green" if ns.total2 > ns.budget2 else "Red" %}
-                    {% set c3 = "Green" if ns.total3 > ns.budget3 else "Red" %}
-                    <th colspan="2">TOTAL</th>
-                    <td class="number" style="color: white; background: {{ c1 }}">
-                        <b>{{ "{:.2f}".format(ns.total1) }} <br> <font size="-2"> of {{ "{:.2f}".format(ns.budget1) }}</font></b></td>
-                    <td class="number" style="color: white; background: {{ c2 }}">
-                        <b>{{ "{:.2f}".format(ns.total2) }} <br> <font size="-2"> of {{ "{:.2f}".format(ns.budget2) }}</font></b></td>
-                    <td class="number" style="color: white; background: {{ c3 }}">
-                        <b>{{ "{:.2f}".format(ns.total3) }} <br> <font size="-2"> of {{ "{:.2f}".format(ns.budget3) }}</font></b></td>
-                </tr>
+
             </tbody>
         </table>
 {% endblock %}
