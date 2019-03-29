@@ -1,4 +1,5 @@
-select 1 as ord, b.category, b.title, :month as month,
+-- BUDGETS WITH TITLE NOT NULL
+select position as ord, b.category, b.title, :month as month,
 b.budget1, case when coalesce(s1.amount,0) = 0 and b.fixed then b.budget1 else coalesce(s1.amount,0) end as amount1, 
            case when coalesce(s1.amount,0) = 0 and b.fixed and b.budget1 <> 0 then 1 else 0 end as pred1,
 b.budget2, case when coalesce(s2.amount,0) = 0 and b.fixed then b.budget2 else coalesce(s2.amount,0) end as amount2, 
@@ -7,6 +8,7 @@ b.budget3, case when coalesce(s3.amount,0) = 0 and b.fixed then b.budget3 else c
            case when coalesce(s3.amount,0) = 0 and b.fixed and b.budget3 <> 0 then 1 else 0 end as pred3,
 abs(b.budget3) as budget_abs
 from budget b
+join category c on b.category = c.category
 left join (
     select category, title, sum(amount) as amount
     from transactions 
@@ -33,8 +35,8 @@ left join (
 where (month is null or month = :month)
 and b.title is not null
 union
--- SELECT BUDGETS THAT TITLE IS NULL
-select case when b.category in ('CASH', 'TRANSFER') then 9 else 1 end as ord, b.category, b.title, :month as month,
+-- BUDGETS WITH TITLE NOT NULL
+select position, b.category, b.title, :month as month,
 b.budget1, case when coalesce(s1.amount,0) = 0 and b.fixed then b.budget1 else coalesce(s1.amount,0) end as amount1,
 case when b.budget1 <> 0 and b.fixed and coalesce(s1.amount,0) = 0  then 1 else 0 end as pred1,
 b.budget2, case when coalesce(s2.amount,0) = 0 and b.fixed then b.budget2 else coalesce(s2.amount,0) end as amount2,
@@ -43,6 +45,7 @@ b.budget3, case when coalesce(s3.amount,0) = 0 and b.fixed then b.budget3 else c
  case when b.budget3 <> 0 and b.fixed and coalesce(s3.amount,0) = 0  then 1 else 0 end as pred3,
 abs(b.budget3) as budget_abs
 from budget b
+join category c on b.category = c.category
 left join (
     select category, sum(amount) as amount
     from transactions 
@@ -67,7 +70,7 @@ where (month is null or month = :month)
 and b.title is null
 union
 -- SELECT TRANSACTIONS WITHOUT BUDGET
-select 2 as ord, category, title, :month as month, 
+select 4 as ord, category, title, :month as month, 
 0 as budget1, sum(case when cast(date_part('day', date) as integer) <= 10 then amount when date is null then 0 else 0 end) as amount1, 0 as pred1,
 0 as budget2, sum(case when cast(date_part('day', date) as integer) <= 20 then amount when date is null then 0 else 0 end) as amount2, 0 as pred2,
 0 as budget3, sum(amount) as amount3, 0 as pred3,

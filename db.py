@@ -71,7 +71,7 @@ class Db(object):
                     'budget2': budget2,
                     'budget3': budget3
                 }
-                total1, total2, total3, budget1, budget2, budget3 = 0, 0, 0, 0, 0, 0
+                #total1, total2, total3, budget1, budget2, budget3 = 0, 0, 0, 0, 0, 0
             result[(row['category'],row['title'])] = {
                 'category': row['category'],
                 'title': row['title'],
@@ -89,8 +89,7 @@ class Db(object):
             budget1 = budget1 + row['budget1']
             budget2 = budget2 + row['budget2']
             budget3 = budget3 + row['budget3']
-            i+=1
-            previtem = row
+            previtem = dict(row)
         
         result[("TOTAL {}".format(previtem['ord']),previtem['ord'])] = {
             'category': "TOTAL {}".format(previtem['ord']),
