@@ -1,6 +1,7 @@
 {% extends 'template.html' %}
 {% block content %}
-<a href="transactions?month=&category={{ category  }}&title={{ title }}">All transactions of this category</a> 
+<h2><a href="budget?month={{month}}">{{ month }}</a> </h2>
+<a href="transactions?month=&category={{ category }}&title={{ title }}">All transactions of this category</a> 
 <br/><br/>
 <table>
     <thead>
@@ -11,6 +12,7 @@
             <th>CATEGORY</th>
             <th>TITLE</th>
             <th>AMOUNT</th>
+            <th>BALANCE</th>
         </tr>
     </thead>
     <tbody>
@@ -20,8 +22,9 @@
             <td>{{ row.description }}</td>
             <td>{{ row.realdate }}</td>
             <td>{{ row.category }}</td>
-            <td>{{ row.title }}</td>
+            <td>{{ row.title if row.title}}</td>
             <td class="number">{{ "{:.2f}".format(row.amount) }}</td>
+            <td class="number">{{ "{:.2f}".format(row.balance) }}</td>
         </tr>
         {% endfor %}
     </tbody>

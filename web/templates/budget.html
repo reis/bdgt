@@ -1,51 +1,55 @@
 {% extends 'template.html' %}
 {% block content %}
+        <h3><a href="budget?month={{ links[0] }}">Previous</a></h3>
         <h2>{{ month }}</h2>
-        <a href="transactions?month={{ month }}&category=&title=">See all transactions for this month</a>
+        <h3><a href="budget?month={{ links[1] }}">Next</a></h3>
+        <a href="transactions?month={{ month }}&category=&title=">Browse all transactions</a>
         <br/><br/>
         <table>
 
-            <thead>
                 <tr>
-                    <th>CATEGORY</th>
-                    <th style="border-right: 5px solid #DADADA;">TITLE</th>
-                    <th>DAY 10</th>
-                    <th>DAY 20</th>
-                    <th>DAY 30</th>
+                    <th class="header">CATEGORY</th>
+                    <th class="header" style="border-right: 5px solid #DADADA;">TITLE</th>
+                    <th class="header">BUDGET</th>
+                    <th class="header">DATE</th>
+                    <th class="header">SPENT</th>
                 </tr>
-            </thead>
-            <tbody>
                 {% for row in budget %}
                 <tr>
-                    {% set c1 = "LightGray" if row['budget1'] == 0 and row['amount1'] == 0 else "YellowGreen" if row['amount1'] > row['budget1'] else "Salmon" if row['amount1'] < row['budget1'] else "LightBlue" %}
-                    {% set c2 = "LightGray" if row['budget2'] == 0 and row['amount2'] == 0 else "YellowGreen" if row['amount2'] > row['budget2'] else "Salmon" if row['amount2'] < row['budget2'] else "LightBlue" %}
-                    {% set c3 = "LightGray" if row['budget3'] == 0 and row['amount3'] == 0 else "YellowGreen" if row['amount3'] > row['budget3'] else "Salmon" if row['amount3'] < row['budget3'] else "LightBlue" %}
-                    {% if row["ord"] == 2 %}
-                        {% set c1 = "Yellow" %}
-                        {% set c2 = "Yellow" %}
-                        {% set c3 = "Yellow" %}
-                    {% endif %}
+                    {% set c1 = "LightGray" if row['budget'] == 0 and row['spent'] == 0 else "Yellow" if row['spent'] == 0 else "YellowGreen" if row['spent'] > row['budget'] else "Salmon" if row['spent'] +1 < row['budget'] else "LightBlue" %}
                     <th>
                         <a href="transactions?month={{month}}&category={{row['category'] }}&title=">
                         {{ row['category'] }}</th>
                     <th style="border-right: 5px solid #DADADA;">
-                            <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
-                            {{ row['title'] if row['title'] }}</th>
+                        <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
+                        {{ row['title'] if row['title'] }}</th>
+                    <td class="number">
+                        <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
+                        {{ "{:.2f}".format(row['budget']) }}
+                    </td>
+                    <td class="number">
+                        {{ row['date'] if row['date'] }}
+                    </td>
                     <td class="number" style="background: {{c1}}">
                         <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
-                        {{ "{:.2f}".format(row['amount1']) }} {% if row["pred1"] == 1 %}*{% endif %} <br> <font size="-2"> of {{ "{:.2f}".format(row['budget1']) }}</font>
+                        {{ "{:.2f}".format(row['spent']) }} {% if row["pred1"] == 1 %}*{% endif %}
                     </td>
-                    <td class="number" style="background: {{c2}}">
-                        <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
-                        {{ "{:.2f}".format(row['amount2']) }} {% if row["pred2"] == 1 %}*{% endif %} <br> <font size="-2"> of {{ "{:.2f}".format(row['budget2']) }}</font></td>
-                    <td class="number" style="background: {{c3}}">
-                        <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
-                        {{ "{:.2f}".format(row['amount3']) }} {% if row["pred3"] == 1 %}*{% endif %} <br> <font size="-2"> of {{ "{:.2f}".format(row['budget3']) }}</font></td>
                 </tr>
 
+                    {% if row['category'][:7] == "BALANCE" and row['ord'] < 9 %}
+                    <tr style="height: 4px">
+                        <td colspan="5" style="height: 4px; background: white"></td>
+                    </tr>
+                    <tr>
+                        <th class="header">CATEGORY</th>
+                        <th class="header" style="border-right: 5px solid #DADADA;">TITLE</th>
+                        <th class="header">BUDGET</th>
+                        <th class="header">DATE</th>
+                        <th class="header">SPENT</th>
+                    </tr>
+                    {% endif %}
             
                 {% endfor %}
 
-            </tbody>
         </table>
 {% endblock %}

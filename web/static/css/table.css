@@ -11,13 +11,16 @@ a {
 table {  
   color: #333;
   font-family: Helvetica, Arial, sans-serif;
+  font-size: 10pt;
   border-collapse: collapse; 
   border-spacing: 0; 
 }
 
-thead tr th {
+tr th.header {
   background: #FAFAFA;
+  font-size: 10pt;
   text-align: center;
+  font-weight: bold;
 }
 
 th {
@@ -32,14 +35,11 @@ td, th {
     padding-left: 30px;
 }
 
-th {  
-    font-weight: bold;
-}
-
 td {  
     background: #FAFAFA;
 }
 
 td.number {
   text-align: right;
+  font-size: 12pt;
 }
