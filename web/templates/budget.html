@@ -1,51 +1,57 @@
 {% extends 'template.html' %}
 {% block content %}
-        <h3><a href="budget?month={{ links[0] }}">Previous</a></h3>
+        
         <h2>{{ month }}</h2>
-        <h3><a href="budget?month={{ links[1] }}">Next</a></h3>
+        <div class="container">
+        <div class="left"><a href="budget?month={{ links[0] }}">Previous</a></div>
+        <div class="right"><a href="budget?month={{ links[1] }}">Next</a></div>
+        </div>
         <a href="transactions?month={{ month }}&category=&title=">Browse all transactions</a>
         <br/><br/>
         <table>
 
                 <tr>
                     <th class="header">CATEGORY</th>
-                    <th class="header" style="border-right: 5px solid #DADADA;">TITLE</th>
+                    <th class="header">SPENT</th>
                     <th class="header">BUDGET</th>
                     <th class="header">DATE</th>
-                    <th class="header">SPENT</th>
                 </tr>
                 {% for row in budget %}
                 <tr>
                     {% set c1 = "LightGray" if row['budget'] == 0 and row['spent'] == 0 else "Yellow" if row['spent'] == 0 else "YellowGreen" if row['spent'] > row['budget'] else "Salmon" if row['spent'] +1 < row['budget'] else "LightBlue" %}
-                    <th>
+                    
+                    {% if row['category'][:7] == "BALANCE" %}
+                    <th style="font-style: italic; text-align: center">
+                            {{ row['category'] }}
+                    </th>
+                    <td class="number" style="background: {{c1}}; font-style: italic">
+                            {{ "{:.2f}".format(row['spent']) }} {% if row["pred1"] == 1 %}*{% endif %}
+                        </td>
+                    {% else %}
+                    <td>
                         <a href="transactions?month={{month}}&category={{row['category'] }}&title=">
-                        {{ row['category'] }}</th>
-                    <th style="border-right: 5px solid #DADADA;">
-                        <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
-                        {{ row['title'] if row['title'] }}</th>
+                        {{ row['category'] }} </a>
+                        <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row.title}}">
+                        {{ row['title'] if row['title'] }} </a>
+                        </td>
+                    <td class="number" style="background: {{c1}}">
+                            <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
+                            {{ "{:.2f}".format(row['spent']) }} {% if row["pred1"] == 1 %}*{% endif %}
+                        </td>
+                    {% endif %}
+                    
                     <td class="number">
-                        <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
                         {{ "{:.2f}".format(row['budget']) }}
                     </td>
                     <td class="number">
                         {{ row['date'] if row['date'] }}
                     </td>
-                    <td class="number" style="background: {{c1}}">
-                        <a href="transactions?month={{month}}&category={{row['category'] }}&title={{row['title'] if row['title']}}">
-                        {{ "{:.2f}".format(row['spent']) }} {% if row["pred1"] == 1 %}*{% endif %}
-                    </td>
+
                 </tr>
 
                     {% if row['category'][:7] == "BALANCE" and row['ord'] < 9 %}
-                    <tr style="height: 4px">
-                        <td colspan="5" style="height: 4px; background: white"></td>
-                    </tr>
-                    <tr>
-                        <th class="header">CATEGORY</th>
-                        <th class="header" style="border-right: 5px solid #DADADA;">TITLE</th>
-                        <th class="header">BUDGET</th>
-                        <th class="header">DATE</th>
-                        <th class="header">SPENT</th>
+                    <tr style="height: 8px">
+                        <td colspan="4" style="height: 4px; background: white"></td>
                     </tr>
                     {% endif %}
             

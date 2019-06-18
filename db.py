@@ -17,18 +17,22 @@ class Db(object):
     def __init__(self):
         self.conn = records.Database(os.environ['DATABASE_URL'])
 
-    def get_transactions(self, month, category=None, title=None):
+    def get_transactions(self, month=None, category=None, title=None, order="date"):
         sql = """
             SELECT DATE, DESCRIPTION, CATEGORY, TITLE, AMOUNT, BALANCE
             FROM transactions
-            WHERE pay_month = :month
+            WHERE 1=1
             {}
             {}
-            ORDER BY AMOUNT""".format(
+            {}
+            ORDER BY {} DESC""".format(
+                "AND pay_month = :pay_month" if month else "",
                 "AND title = :title"    if title else "", 
-                "AND category IS NULL" if category == "None" else "AND category = :category" if category else "")
-        
-        params = {"month": month+'-01'}
+                "AND category IS NULL" if category == "None" else "AND category = :category" if category else "",
+                order if order in ["date", "amount"] else "random()")
+        params = dict()
+        if month:
+            params["pay_month"] = month+'-01'
         if title:
             params["title"] = title
         if category and category != "None":

@@ -28,8 +28,8 @@ class App(object):
         raise cherrypy.HTTPRedirect("/budget?month={}".format(datetime.now().strftime("%Y-%m")))
     
     @cherrypy.expose
-    def transactions(self, month, category, title):
-        transactions = self.db.get_transactions(month, category, title)
+    def transactions(self, month, category, title, order=None):
+        transactions = self.db.get_transactions(month, category, title, order)
 
         tmpl = env.get_template('transactions.html')
         return tmpl.render(transactions=transactions, month=month, category=category, title=title)
