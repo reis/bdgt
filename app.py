@@ -25,7 +25,8 @@ class App(object):
 
     @cherrypy.expose
     def index(self):
-        raise cherrypy.HTTPRedirect("/budget?month={}".format(datetime.now().strftime("%Y-%m")))
+        #raise cherrypy.HTTPRedirect("/budget?month={}".format(datetime.now().strftime("%Y-%m")))
+        raise cherrypy.HTTPRedirect("/budgets")
     
     @cherrypy.expose
     def transactions(self, month, category, title, order=None):
@@ -73,7 +74,7 @@ class App(object):
                 for x in range(-8, 1, 1):
                     xmonth = (datetime.strptime(month, "%Y-%m") + relativedelta(months=x)).strftime("%Y-%m")
                     if xmonth not in budgets[category][title]:
-                        budgets[category][title][xmonth] = {"budget3": 0, "amount3": 0, "ord": 2}
+                        budgets[category][title][xmonth] = {"budget": 0, "spent": 0, "ord": 2}
                 mysort = dict()
                 for key in sorted(budgets[category][title].keys(), reverse=True):
                     mysort[key] = budgets[category][title][key]

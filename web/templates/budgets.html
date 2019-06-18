@@ -16,25 +16,23 @@
                 {% for category in data %}
                     {% for title in data[category] %}
                         <tr>
-                            {% if category[0:5] == "TOTAL" %}
-                            <th colspan="2" align="right">{{ category }}</th>
+                            {% if category[0:7] == "BALANCE" %}
+                            <th colspan="2" align="right" style="font-style: italic; text-align: center">{{ category }}</th>
                             {% else %}
                             <th >{{ category }}</th>
                             <th>{{ title if title }}</th>
                             {% endif %}
 
                             {% for monthd in data[category][title] %}
-                                {% set budget = data[category][title][monthd]["budget3"] %}
-                                {% set amount = data[category][title][monthd]["amount3"] %}
-                                {% set pred = data[category][title][monthd]["pred3"] %}
-                                {% set bgcolor = "LightGray" if budget == 0 and amount == 0 else "YellowGreen" if amount - budget >= 1 else "Salmon" if budget - amount >= 1 else "LightBlue" %}
-                                {% if data[category][title][monthd]["ord"] == 4 and amount != 0 %}
-                                    {% set bgcolor = "Yellow" %}
-                                {% endif %}
+                                {% set budget = data[category][title][monthd]["budget"] %}
+                                {% set spent = data[category][title][monthd]["spent"] %}
+                                {% set row = {"budget": budget, "spent": spent} %}
+                                {% set bgcolor = "LightGray" if row['budget'] == 0 and row['spent'] == 0 else "Yellow" if row['spent'] == 0 else "YellowGreen" if row['spent'] > row['budget'] else "Salmon" if row['spent'] +1 < row['budget'] else "LightBlue" %}
+                    
                                 <td class="number" style="background: {{bgcolor}}">
-                                    {% if category[0:5] == "TOTAL" %}<b>{% endif %}
+                                    {% if category[0:7] == "BALANCE" %}<span style="font-style: italic;">{% endif %}
                                     <a href="transactions?month={{monthd}}&category={{category}}&title={{title if title }}">
-                                    {{ "{:.2f}".format(amount) }} {% if pred == 1 %}*{% endif %}
+                                    {{ "{:.2f}".format(spent) }} {% if pred == 1 %}*{% endif %}
                                     <br> <font size="-3">bdgt {{ "{:.2f}".format(budget) }}
                                 </td>
                             {% endfor %}
