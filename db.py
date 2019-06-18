@@ -19,16 +19,16 @@ class Db(object):
 
     def get_transactions(self, month, category=None, title=None):
         sql = """
-            SELECT DATE, DESCRIPTION, CATEGORY, TITLE, AMOUNT 
+            SELECT DATE, DESCRIPTION, CATEGORY, TITLE, AMOUNT, BALANCE
             FROM transactions
-            WHERE CAST(date as varchar) LIKE :month
+            WHERE pay_month = :month
             {}
             {}
-            ORDER BY 1 DESC""".format(
+            ORDER BY AMOUNT""".format(
                 "AND title = :title"    if title else "", 
                 "AND category IS NULL" if category == "None" else "AND category = :category" if category else "")
         
-        params = {"month": month+"%"}
+        params = {"month": month+'-01'}
         if title:
             params["title"] = title
         if category and category != "None":
@@ -44,7 +44,8 @@ class Db(object):
                 row["description"] = row["description"].split("*")[-1]
         row_total = {
             "description": "TOTAL",
-            "amount": total
+            "amount": total,
+            "balance": 0.00
         }
         rows.append(row_total)
 
@@ -53,57 +54,54 @@ class Db(object):
     def get_budget_detail(self, month=datetime.now().strftime("%Y-%m")):
         rows = self.conn.query_file('sql/budget_detail.sql', month=month)
 
-        total1, total2, total3, budget1, budget2, budget3 = 0, 0, 0, 0, 0, 0
+        budget_total, spent_total = 0, 0
         previtem = []
         i=1
 
         result = dict()
         for row in rows:
             if previtem and previtem["ord"] != row["ord"]:
-                result[("TOTAL {}".format(previtem['ord']),previtem['ord'])] = {
-                    'category': "TOTAL {}".format(previtem['ord']),
+                result[("BALANCE {}".format(previtem['ord']),previtem['ord'])] = {
+                    'category': "BALANCE {}".format(previtem['ord']),
                     'title': None,
                     'ord': i,
-                    'amount1': total1,
-                    'amount2': total2,
-                    'amount3': total3,
-                    'budget1': budget1,
-                    'budget2': budget2,
-                    'budget3': budget3
+                    'budget': budget_total,
+                    'date': None,
+                    'spent': spent_total
                 }
-                #total1, total2, total3, budget1, budget2, budget3 = 0, 0, 0, 0, 0, 0
             result[(row['category'],row['title'])] = {
                 'category': row['category'],
                 'title': row['title'],
                 'ord': row['ord'],
-                'amount1': row['amount1'],
-                'amount2': row['amount2'],
-                'amount3': row['amount3'],
-                'budget1': row['budget1'],
-                'budget2': row['budget2'],
-                'budget3': row['budget3']
+                'budget': row['budget'],
+                'date': row['date'],
+                'spent': row['spent']
             }
-            total1 = total1 + row['amount1']
-            total2 = total2 + row['amount2']
-            total3 = total3 + row['amount3']
-            budget1 = budget1 + row['budget1']
-            budget2 = budget2 + row['budget2']
-            budget3 = budget3 + row['budget3']
+            spent_total  = spent_total  + row['spent']
+            budget_total = budget_total + row['budget']
             previtem = dict(row)
         
-        result[("TOTAL {}".format(previtem['ord']),previtem['ord'])] = {
-            'category': "TOTAL {}".format(previtem['ord']),
+        result[("BALANCE",previtem['ord'])] = {
+            'category': "BALANCE",
             'title': None,
             'ord': previtem['ord'],
-            'amount1': total1,
-            'amount2': total2,
-            'amount3': total3,
-            'budget1': budget1,
-            'budget2': budget2,
-            'budget3': budget3
+            'budget': budget_total,
+            'spent': spent_total
         }
         return result
 
     def get_budget_extra(self, month=0):
         rows = self.conn.query_file('sql/budget_extra.sql', month=month)
         return rows
+
+    def get_payday(self, month):
+        rows = self.conn.query_file('sql/payday.sql', month=month)
+        return rows[0]
+
+    def get_paymonth_spends(self, payday):
+        rows = self.conn.query_file('sql/paymonth_spends.sql', payday=payday)
+        return [dict(row) for row in rows]
+
+    def get_myquery(self):
+        rows = self.conn.query_file('sql/myquery.sql')
+        return [dict(row) for row in rows]

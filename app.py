@@ -25,14 +25,14 @@ class App(object):
 
     @cherrypy.expose
     def index(self):
-        return self.budgets()
-
+        raise cherrypy.HTTPRedirect("/budget?month={}".format(datetime.now().strftime("%Y-%m")))
+    
     @cherrypy.expose
     def transactions(self, month, category, title):
         transactions = self.db.get_transactions(month, category, title)
 
         tmpl = env.get_template('transactions.html')
-        return tmpl.render(transactions=transactions, category=category, title=title)
+        return tmpl.render(transactions=transactions, month=month, category=category, title=title)
 
     @cherrypy.expose
     def transaction(self, ):
@@ -91,7 +91,7 @@ cherrypy_config = {
     '/css': {
         'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
         'tools.staticdir.on': True,
-        'tools.staticdir.dir': "web/static/css/" 
+        'tools.staticdir.dir': "web/static/css/"
     },
      '/': {
        'tools.auth_basic.on': True,
