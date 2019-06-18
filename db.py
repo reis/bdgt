@@ -29,7 +29,7 @@ class Db(object):
                 "AND pay_month = :pay_month" if month else "",
                 "AND title = :title"    if title else "", 
                 "AND category IS NULL" if category == "None" else "AND category = :category" if category else "",
-                order if order in ["date", "amount"] else "random()")
+                order if order in ["date", "amount"] else "date")
         params = dict()
         if month:
             params["pay_month"] = month+'-01'

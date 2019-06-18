@@ -27,3 +27,25 @@ WHERE ( SELECT category
   ORDER BY maxamount LIMIT 1
 ) IS NOT NULL
 AND category IS NULL;
+
+update transactions
+set pay_month = new_pay
+from (
+select *, date_trunc('month', (
+	select t2.date from transactions t2
+	where category = 'EARNINGS'
+	and t2.date < t.date
+	order by t2.date desc
+	limit 1) + '1 month'::interval)::date as new_pay
+from transactions t
+where category <> 'EARNINGS'
+union
+select *, date_trunc('month', date+'1 month'::interval)::date
+from transactions t3
+where category = 'EARNINGS'
+) z 
+where z.date = transactions.date
+and z.description = transactions.description
+and z.amount = transactions.amount
+and z.balance = transactions.balance
+and transactions.pay_month is null;
