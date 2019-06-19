@@ -14,7 +14,15 @@ from (
         order by position, category, title, month desc
     ) tt
     where seq = 1
-    and (:month||'-01')::date in (select generate_series((month||'-01')::date, (:month||'-01')::date, (repeat_every||' months')::interval)::date)
+    and (:month||'-01')::date in (
+    	select generate_series(
+	    		(month||'-01')::date, 
+	    		(:month||'-01')::date,
+	    		case when repeat_every = 0 then '100 years'::interval
+	    		else (repeat_every||' months')::interval
+	    		end
+		    )::date
+    )
 ) b
 full outer join (
     select t.category, null as title, max(date) as date, sum(amount) as spent, c."position"
@@ -29,4 +37,4 @@ full outer join (
     where pay_month = (:month || '-01')::date 
     group by t.category, title, c."position"
 ) s on b.category = s.category and (b.title is null or b.title = s.title)
-order by ord, b.category, b.title
+order by 1,2,3,4
